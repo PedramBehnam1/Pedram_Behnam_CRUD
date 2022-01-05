@@ -7,23 +7,23 @@ use Pedram_Behnam_CRUD\Helper\PersonHelper;
 
 class PersonController
 {
- public function switcher($method,$request){
+ public function switcher($method,$request, $tableName,$host, $username, $password, $db, $port = NULL){
   switch ($method)
    {
     case Actions::CREATE:
-      $this->createAction($request);
+      $this->createAction($request, $tableName,$host, $username, $password, $db, $port = NULL);
       break;
     case Actions::UPDATE:
-      $this->updateAction($request);
+      $this->updateAction($request, $tableName,$host, $username, $password, $db, $port = NULL);
       break;
     case Actions::READ:
-      $this->readAction($request);
+      $this->readAction($request, $tableName,$host, $username, $password, $db, $port = NULL);
       break;
     case Actions::READ_ALL:
-      $this->readAllAction($request);
+      $this->readAllAction($request, $tableName,$host, $username, $password, $db, $port = NULL);
       break;
     case Actions::DELETE:
-      $this->deleteAction($request);
+      $this->deleteAction($request, $tableName,$host, $username, $password, $db, $port = NULL);
       break;
     default:
       break;
