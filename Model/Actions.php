@@ -1,5 +1,5 @@
 <?php
-namespace Pedram_Behnam_CRUD\Model;
+namespace Model;
 
 class Actions
 {

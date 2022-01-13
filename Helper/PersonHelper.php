@@ -1,89 +1,101 @@
 <?php
 
-namespace CRUD\Helper;
+namespace Helper;
+
+use Exception;
+
+use Model\Person;
 use Pedram_Behnam_CRUD\Controller\PersonController;
-use Pedram_Behnam_CRUD\Helper\DBConnector;
-class PersonHelper extends DBConnector
+
+
+
+class PersonHelper 
 {
 
 
 
-    public function insert($person , $tableName , $col):bool
+    public function insert($person , $tableName , $connection):void
     {   
-        try {
-            $this->connect();
-        } catch (Exeption $e) {
-            echo "Connection failed: " . $e->getMessage();
+        $firstName=$person->getFirstName();
+        $lastName = $person->getLastName();
+        $username = $person->getUsername();
+        $query = "INSERT INTO $tableName(FirstName , LastName, UserName)
+        VALUES ('$firstName','$lastName' ,'$username') " ;
+        $connection = $connection->query($query);
+        echo "<br />";
+        if ( $connection=== TRUE) {
+            echo "New record created successfully";
+        } else {
+            throw new Exception("Error: " . $query . "<br>" . $connection->error);
         }
-        
-        $query = "INSERT INTO $tableName(";
-        for ($i=0; $i <sizeof($col) ; $i++) { 
-            
-            if ($i ==0) {
-                $query=".$col[i],.";
-            }elseif ($i == sizeof($col)-1) {
-                $query="$col[i]) VALUES ('$person->getFirstName()', '$person->getLastName()', '$person->getUsername()')";
-            }else {
-                $query="$col[i],.";
-            }
-        }
-        
-        $result = $this->insert($query);
-        return $result;
+        $connection->close();
     }   
 
-    public function fetch(int $id,$tableName ):bool
+    public function fetch(int $id,$tableName,$connection ):void
     {
-        try {
-            $this->connect();
-        } catch (Exeption $e) {
-            echo "Connection failed: " . $e->getMessage();
+        $query = "SELECT * FROM $tableName WHERE id = $id";
+        $result = $connection->query($query);
+        if ($result->num_rows > 0) {
+            echo "<table border='1'><tr><th>ID</th><th>Name</th></tr>";
+            while($row = $result->fetch_assoc()) {
+                echo "<tr> <td>".$row["id"]."</td> <td>".$row["FirstName"]." ".$row["LastName"]."</td> </tr>";
+            }
+            echo "</table>";
+        }else {
+        throw new Exception("rows: 0");
         }
-
-        $query = "SELECT * FROM $tableName WHERE id == $id";
-        $result = $this->get($query);
-        return $result;
+        $connection->close();
     }
 
-    public function fetchAll($tableName):bool
+    public function fetchAll($tableName , $connection):void
     {
 
-        try {
-            $this->connect();
-        } catch (Exeption $e) {
-            echo "Connection failed: " . $e->getMessage();
-        }
+        echo "<br />";
         $query = "SELECT * FROM $tableName";
-        $result = $this->get($query);
-        return $result;
+        $result = $connection->query($query);
+        if ($result->num_rows > 0) {
+            echo "<table border='1'><tr><th>ID</th><th>Name</th></tr>";
+            while($row = $result->fetch_assoc()) {
+                echo "<tr> <td>".$row["id"]."</td> <td>".$row["FirstName"]." ".$row["LastName"]."</td> </tr>";
+            }
+            echo "</table>";
+        }else {
+        throw new Exception("rows: 0");
+        }
+        $connection->close();
     }
 
-    public function update($person,$tableName,):bool
+    public function update($person,$tableName,$connection):void
     {
-        try {
-            $this->connect();
-        } catch (Exeption $e) {
-            echo "Connection failed: " . $e->getMessage();
-        }
-       
-            $query = "UPDATE $tableName SET firstName='$person->getFirstName()',lastName='$person->getLastName()',userName='$person->getUsername() ' WHERE id=$person->getId()";
-        
-       
-        $result = $this->update($query);
-        return $result;
+            $firstName=$person->getFirstName();
+            $lastName = $person->getLastName();
+            $username = $person->getUsername();
+            $id = $person->getId();
+            
+            $query = "UPDATE $tableName SET firstName='$firstName',lastName='$lastName' ,userName='$username'  WHERE id=$id";
+            $result = $connection->query($query);
+            echo "<br />";
+            if ( $result === TRUE) {
+                echo "New record created successfully";
+            } else {
+                throw new Exception("Error: " . $query . "<br>" . $result->error);
+            }
+            $connection->close();
     }
 
-    public function delete($person,$tableName):bool
+    public function delete($person,$tableName,$connection):void
     {
-        try {
-            $this->connect();
-        } catch (Exeption $e) {
-            echo "Connection failed: " . $e->getMessage();
-        }
+        $id = $person->getId();
        
-        $query = "DELETE FROM $tableName WHERE id=$person->getId()";
-        $result = $this->delete($query);
-        return $result;
+        $query = "DELETE FROM $tableName WHERE id= $id";
+        $result = $connection->query($query);
+        echo "<br />";
+        if ( $result === TRUE) {
+            echo "one record deleted successfully";
+        } else {
+            throw new Exception("Error: " . $query . "<br>" . $result->error);
+        }
+        $connection->close();
     }
 
 }

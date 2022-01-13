@@ -1,29 +1,29 @@
 <?php
-namespace Pedram_Behnam_CRUD\Controller;
+namespace Controller;
 
-use Pedram_Behnam_CRUD\Model\Actions;
-use Pedram_Behnam_CRUD\Model\Person;
-use Pedram_Behnam_CRUD\Helper\PersonHelper;
-
+use Exception;
+use Model\Actions;
+use Helper\PersonHelper;
+use Model\Person as person;
 class PersonController
 {
- public function switcher($method,$request, $tableName,$host, $username, $password, $db, $port = NULL){
+ public function switcher($method,$request, $connection){
   switch ($method)
    {
     case Actions::CREATE:
-      $this->createAction($request, $tableName,$host, $username, $password, $db, $port = NULL);
+      $this->createAction($request, $connection);
       break;
     case Actions::UPDATE:
-      $this->updateAction($request, $tableName,$host, $username, $password, $db, $port = NULL);
+      $this->updateAction($request, $connection);
       break;
     case Actions::READ:
-      $this->readAction($request, $tableName,$host, $username, $password, $db, $port = NULL);
+      $this->readAction($request,$connection);
       break;
     case Actions::READ_ALL:
-      $this->readAllAction($request, $tableName,$host, $username, $password, $db, $port = NULL);
+      $this->readAllAction($request, $connection);
       break;
     case Actions::DELETE:
-      $this->deleteAction($request, $tableName,$host, $username, $password, $db, $port = NULL);
+      $this->deleteAction($request, $connection);
       break;
     default:
       break;
@@ -32,68 +32,70 @@ class PersonController
 
 
 
- public function createAction($request , $tableName,$host, $username, $password, $db, $port = NULL)
+ public function createAction($request ,$connection)
  {
-   $helper = new PersonHelper($host, $username, $password, $db, $port = NULL);
-   $person = new Person();
-   $col = ['firstName','lastName','userName'];
+   $helper = new PersonHelper();
+   $person = new person();
+   
    $person->setFirstName($request["firstName"]);
    $person->setLastName($request["lastName"]);
    $person->setUsername($request["userName"]);
-   if($helper->insert($person ,$tableName , $col )){
-     echo "success";
-   }else
-     echo "error";
+   try {
+    $helper->insert($person ,"person",$connection);
+   } catch (Exception $e) {
+    echo $e->getMessage();
+   }
   }
 
-  public function updateAction($request,$tableName,$host, $username, $password, $db,$port = NULL)
+  public function updateAction($request,$connection)
   {
-   $helper = new PersonHelper($host, $username, $password, $db,$port = NULL);
+   $helper = new PersonHelper();
    $person = new Person();
 
    $person->setId($request["id"]);
    $person->setFirstName($request["firstName"]);
    $person->setLastName($request["lastName"]);
    $person->setUsername($request["userName"]);
-
-   if($helper->update($person ,$tableName )){
-    echo "Record updated successfully";
-  }else
-    echo "Error updating record: " . $helper->_mysqli->error;
-
-    
+   try {
+    $helper->update($person ,"person",$connection );
+   } catch (Exception $e) {
+    echo $e->getMessage();
+   }
   }
 
-  public function readAction($request ,$tableName,$host, $username, $password, $db, $port = NULL){
-    $helper = new PersonHelper($host, $username, $password, $db, $port = NULL);
+  public function readAction($request ,$connection){
+    $helper = new PersonHelper();
 
     $person = new Person();
     $person->setId($request["id"]);
 
-    if(!$helper->fetch($person->getId() ,$tableName )){
-      echo "rows: 0";
+    try {
+      $helper->fetch($person->getId() ,"person",$connection );
+    } catch (Exception $e) {
+      echo $e->getMessage();
     }
   }
 
-  public function readAllAction($request,$tableName,$host, $username, $password, $db, $port = NULL)
+  public function readAllAction($connection)
   {
-    $helper = new PersonHelper($host, $username, $password, $db, $port = NULL);
-    if(!$helper->fetchAll($tableName)){
-      echo "rows: 0";
+    $helper = new PersonHelper();
+    try {
+      $helper->fetchAll("person",$connection);
+    } catch (Exception $e) {
+      echo $e->getMessage();
     }
   }
 
-  public function deleteAction($request,$tableName,$host, $username, $password, $db, $port = NULL)
+  public function deleteAction($request,$connection)
   {
-    $helper = new PersonHelper($host, $username, $password, $db, $port = NULL);
+    $helper = new PersonHelper();
 
     $person = new Person();
     $person->setId($request["id"]);
-
-    if($helper->delete($person,$tableName)){
-      echo "Record deleted successfully";
-    }else {
-      echo "Error deleting  record: " . $helper->_mysqli->error;
+    try {
+      $helper->delete($person,"person",$connection);
+    } catch (Exception $e) {
+      echo $e->getMessage();
     }
   }
 }
